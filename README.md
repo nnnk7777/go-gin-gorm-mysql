@@ -1,0 +1,5 @@
+- Go
+- Gin
+- GORM
+- MySQL
+- Docker
