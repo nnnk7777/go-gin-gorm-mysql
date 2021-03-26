@@ -1,0 +1,50 @@
+version: "3"
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    env_file: ./.env
+    environment:
+      TZ: "Asia/Tokyo"
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    volumes:
+      - ./db/data:/var/lib/mysql
+      - ./db/my.conf:/etc/mysql/conf.d/my.conf
+    ports:
+      - "7102:3306"
+    networks:
+      - app
+
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - 7103:80
+    env_file: ./.env
+    depends_on:
+      - mysql
+    networks:
+      - app
+
+  go-api:
+    container_name: go-api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    env_file: ./.env
+    volumes:
+      - ./src/:/usr/src/app
+    ports:
+      - 7101:8080
+    depends_on:
+      - mysql
+    networks:
+      - app
+
+volumes:
+  mysql:
+
+networks:
+  app:
+    driver: bridge
